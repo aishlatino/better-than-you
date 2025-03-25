@@ -75,4 +75,4 @@ if st.session_state.level >= len(activities):
         st.write(f"{task['icon']} {task['name']}")
 
     st.markdown("---")
-    st.markdown("### 👉 [Discover it here](https://www.aish.com)", unsafe_allow_html=True)
+    st.markdown("### 👉 [Discover it here](https://aish.com/humans-vs-ai-will-we-remain-relevant/)", unsafe_allow_html=True)
