@@ -33,16 +33,15 @@ if "transition_text" not in st.session_state:
     st.session_state.transition_text = ""
 
 st.title("Better Than You")
-st.subheader("Start working. Do the task. Repeat it. Again and again — until a robot replaces you.")
+st.subheader("Start working. Do the task. Repeat it.")
 
 # MAIN TASK LOOP
 if st.session_state.level < len(activities):
     task = activities[st.session_state.level]
 
-    # Show transition text if available
+    # Show transition message if available
     if st.session_state.transition_text:
         st.success(st.session_state.transition_text)
-        st.session_state.transition_text = ""
 
     st.markdown(f"### Current task: {task['name']} {task['emoji']}")
     st.markdown(f"**Total human actions completed:** {st.session_state.global_count}")
@@ -50,6 +49,7 @@ if st.session_state.level < len(activities):
     if st.button(f"Do '{task['name']}'"):
         st.session_state.count += 1
         st.session_state.global_count += 1
+        st.session_state.transition_text = ""  # Clear transition text after next action
 
     if st.session_state.count >= 5:
         if st.button(f"🤖 Buy robot to automate '{task['name']}'"):
