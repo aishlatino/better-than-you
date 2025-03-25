@@ -83,7 +83,9 @@ if "robot_counts" not in st.session_state:
 # Introducción
 if st.session_state.level == 0 and st.session_state.count == 0 and len(st.session_state.robots) == 0:
     st.title("Better Than You")
-    st.markdown("### Let's see how much of your life a robot can automate")
+    st.markdown("### Let's see how much of your life a robot can automate.")
+    st.markdown("Do the task. Repeat it. Then hand it over. Your life is no longer yours.")
+    st.markdown("---")
 
 # Mostrar barra de progreso
 progress = len(st.session_state.robots)
@@ -100,7 +102,7 @@ if st.session_state.level < len(activities):
     if st.session_state.transition_text:
         st.success(st.session_state.transition_text)
 
-    if st.button(f"✅ Do '{task['name']}'"):
+    if st.button(f"✅ Let's {task['name'].lower()}!"):
         st.session_state.count += 1
         st.session_state.global_count += 1
         st.session_state.transition_text = ""
@@ -177,8 +179,7 @@ if st.session_state.level >= len(activities):
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("### 🧠 Automation progress")
-st.markdown("---")
+    st.markdown("---")
 st.markdown("📸 **If this made you think — share it.** Screenshot your screen. Tag [#BetterThanYou] on social media.")
 
 
