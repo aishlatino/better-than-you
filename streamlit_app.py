@@ -39,6 +39,7 @@ h1, h2, h3, h4 {
 """
 
 st.markdown(custom_css, unsafe_allow_html=True)
+st.markdown("<div style='max-width: 700px; margin: auto; text-align: center;'>", unsafe_allow_html=True)
 
 # Auto-refresh loop (every 0.5 sec)
 st_autorefresh(interval=500, key="refresh")
@@ -136,3 +137,5 @@ if st.session_state.level >= len(activities):
             '>🌌 Discover it here</a>
         </div>
     """, unsafe_allow_html=True)
+
+st.markdown("</div>", unsafe_allow_html=True)
