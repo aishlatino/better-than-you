@@ -1,4 +1,5 @@
 import streamlit as st
+st.set_page_config(page_title="Better Than You", layout="centered")
 from streamlit_autorefresh import st_autorefresh
 import random
 
@@ -30,7 +31,6 @@ if "global_count" not in st.session_state:
 if "robot_anim" not in st.session_state:
     st.session_state.robot_anim = {}
 
-st.set_page_config(page_title="Better Than You", layout="centered")
 st.title("Better Than You")
 st.subheader("Let's get to work.")
 
