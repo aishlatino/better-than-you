@@ -2,16 +2,15 @@ import streamlit as st
 from streamlit_autorefresh import st_autorefresh
 import random
 
-# AUTOREFRESH every 1000ms = 1 second
-st_autorefresh(interval=1000, key="refresh")
+# Auto-refresh loop (every 1.2 sec)
+st_autorefresh(interval=1200, key="refresh")
 
-# Tasks and associated "things" to act on
 activities = [
     {"name": "Pick apples", "emoji": "🍎", "icon": "🧺"},
     {"name": "Sweep the floor", "emoji": "💨", "icon": "🧹"},
     {"name": "Drive a car", "emoji": "🛣️", "icon": "🚗"},
     {"name": "Write a poem", "emoji": "📜", "icon": "✍️"},
-    {"name": "Paint a picture", "emoji": "🖼️", "icon": "🎨"},
+    {"name": "Paint a picture", "emoji": "🎨", "icon": "🖌️"},
     {"name": "Diagnose a patient", "emoji": "🧬", "icon": "🩺"},
     {"name": "Teach a class", "emoji": "📚", "icon": "👩‍🏫"},
     {"name": "Compose music", "emoji": "🎵", "icon": "🎼"},
@@ -19,7 +18,7 @@ activities = [
     {"name": "Counsel a friend", "emoji": "🫂", "icon": "🧠"},
 ]
 
-# Setup session state
+# Set up session state
 if "level" not in st.session_state:
     st.session_state.level = 0
 if "count" not in st.session_state:
@@ -28,54 +27,52 @@ if "robots" not in st.session_state:
     st.session_state.robots = []
 if "global_count" not in st.session_state:
     st.session_state.global_count = 0
-if "robot_anim_state" not in st.session_state:
-    st.session_state.robot_anim_state = {}  # Holds state of each robot animation
+if "robot_anim" not in st.session_state:
+    st.session_state.robot_anim = {}
 
-# Title & Intro
+st.set_page_config(page_title="Better Than You", layout="centered")
 st.title("Better Than You")
 st.subheader("Let's get to work.")
 
-# Show current task if not finished
+# Current task loop
 if st.session_state.level < len(activities):
     task = activities[st.session_state.level]
     st.markdown(f"### Current task: {task['name']} {task['emoji']}")
     st.markdown(f"You've done it **{st.session_state.count}/5** times")
-    st.markdown(f"**Total human actions done:** {st.session_state.global_count}")
+    st.markdown(f"**Total human actions completed:** {st.session_state.global_count}")
 
     if st.button(f"Do '{task['name']}'"):
         st.session_state.count += 1
         st.session_state.global_count += 1
 
-    # After 5 actions, allow robot creation
     if st.session_state.count >= 5:
         if st.button(f"🤖 Buy robot to automate '{task['name']}'"):
             st.session_state.robots.append(task)
-            st.session_state.robot_anim_state[task['name']] = random.randint(0, 3)
+            st.session_state.robot_anim[task['name']] = 0
             st.session_state.level += 1
             st.session_state.count = 0
+            st.success(f"A robot is now doing: {task['name']}")
 
-# Show robots only after at least one is acquired
+# Show robot animations only after first robot
 if len(st.session_state.robots) > 0:
     st.markdown("## 🤖 Robots working for you:")
-    for i, robot in enumerate(st.session_state.robots):
-        spot = st.empty()
-        state = st.session_state.robot_anim_state.get(robot['name'], 0)
-        max_len = 10
-        line = [" "]*max_len
-        if state < max_len:
-            line[state] = robot['emoji']
-            st.session_state.robot_anim_state[robot['name']] += 1
-        else:
-            st.session_state.robot_anim_state[robot['name']] = 0
-        progress = " ".join(line)
-        spot.markdown(f"{robot['icon']} {robot['name']} → {progress}")
+    for task in st.session_state.robots:
+        container = st.empty()
+        frame = st.session_state.robot_anim[task['name']]
+        icons = [task['emoji']] * 5
+        icons[frame % 5] = "✅"
+        display = " ".join(icons)
+        container.markdown(f"{task['icon']} {task['name']} → {display}")
+        st.session_state.robot_anim[task['name']] = (frame + 1) % 5
 
-# Ending screen
+# Final screen with CTA
 if st.session_state.level >= len(activities):
     st.header("Everything you do, a robot can do better.")
-    st.subheader("So… what's the meaning of your existence?")
-    st.markdown("### 🤖 All your robots are working:")
-    for robot in st.session_state.robots:
-        st.write(f"{robot['icon']} {robot['name']}")
-    if st.button("🌟 Find Meaning at Aish.com"):
-        st.markdown("[Click here to explore](https://www.aish.com)", unsafe_allow_html=True)
+    st.markdown("#### So… what's the point of your existence?")
+    st.markdown("### 🤖 Your life is now fully automated:")
+
+    for task in st.session_state.robots:
+        st.write(f"{task['icon']} {task['name']}")
+
+    st.markdown("---")
+    st.markdown("### 👉 [Discover it here](https://www.aish.com)", unsafe_allow_html=True)
