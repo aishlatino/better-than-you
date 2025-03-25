@@ -3,20 +3,20 @@ st.set_page_config(page_title="Better Than You", layout="centered")
 from streamlit_autorefresh import st_autorefresh
 import random
 
-# Auto-refresh loop (every 1.2 sec)
-st_autorefresh(interval=1200, key="refresh")
+# Auto-refresh loop (every 0.5 sec)
+st_autorefresh(interval=500, key="refresh")
 
 activities = [
     {"name": "Pick apples", "emoji": "🍎", "icon": "🧺"},
-    {"name": "Sweep the floor", "emoji": "💨", "icon": "🧹"},
-    {"name": "Drive a car", "emoji": "🛣️", "icon": "🚗"},
+    {"name": "Clean the house", "emoji": "🧹", "icon": "🧽"},
+    {"name": "Drive a car", "emoji": "🚗", "icon": "🛣️"},
+    {"name": "Cook a meal", "emoji": "🍳", "icon": "👨‍🍳"},
+    {"name": "Diagnose a patient", "emoji": "🩺", "icon": "🧬"},
     {"name": "Write a poem", "emoji": "📜", "icon": "✍️"},
     {"name": "Paint a picture", "emoji": "🎨", "icon": "🖌️"},
-    {"name": "Diagnose a patient", "emoji": "🧬", "icon": "🩺"},
-    {"name": "Teach a class", "emoji": "📚", "icon": "👩‍🏫"},
-    {"name": "Compose music", "emoji": "🎵", "icon": "🎼"},
-    {"name": "Write code", "emoji": "⌨️", "icon": "💻"},
-    {"name": "Counsel a friend", "emoji": "🫂", "icon": "🧠"},
+    {"name": "Compose music", "emoji": "🎼", "icon": "🎵"},
+    {"name": "Write code", "emoji": "💻", "icon": "⌨️"},
+    {"name": "Offer emotional support", "emoji": "🧠", "icon": "🫂"},
 ]
 
 if "level" not in st.session_state:
