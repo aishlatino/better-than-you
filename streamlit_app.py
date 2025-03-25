@@ -83,7 +83,7 @@ if "robot_counts" not in st.session_state:
 # Introducción
 if st.session_state.level == 0 and st.session_state.count == 0 and len(st.session_state.robots) == 0:
     st.title("Better Than You")
-    st.markdown("### Let's see how much of your life a robot can automate: Do the task. Repeat it. Then hand it over.")
+    st.markdown("### Let's see how much of your life a robot can automate")
 
 # Mostrar barra de progreso
 progress = len(st.session_state.robots)
