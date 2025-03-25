@@ -38,7 +38,6 @@ st.subheader("Let's get to work.")
 if st.session_state.level < len(activities):
     task = activities[st.session_state.level]
     st.markdown(f"### Current task: {task['name']} {task['emoji']}")
-    st.markdown(f"You've done it **{st.session_state.count}/5** times")
     st.markdown(f"**Total human actions completed:** {st.session_state.global_count}")
 
     if st.button(f"Do '{task['name']}'"):
@@ -69,10 +68,10 @@ if len(st.session_state.robots) > 0:
 if st.session_state.level >= len(activities):
     st.header("Everything you do, a robot can do better.")
     st.markdown("#### So… what's the point of your existence?")
-    st.markdown("### 🤖 Your life is now fully automated:")
+    st.markdown("[👉 Discover it here](https://aish.com/humans-vs-ai-will-we-remain-relevant/)", unsafe_allow_html=True)
 
+    st.markdown("### 🤖 Your life is now fully automated:")
     for task in st.session_state.robots:
         st.write(f"{task['icon']} {task['name']}")
 
     st.markdown("---")
-    st.markdown("### 👉 [Discover it here](https://aish.com/humans-vs-ai-will-we-remain-relevant/)", unsafe_allow_html=True)
