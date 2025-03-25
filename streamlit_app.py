@@ -73,7 +73,7 @@ if "global_count" not in st.session_state:
 if "robot_anim" not in st.session_state:
     st.session_state.robot_anim = {}
 if "transition_text" not in st.session_state:
-if "robot_counts" not in st.session_state:
+    if "robot_counts" not in st.session_state:
     st.session_state.robot_counts = {}
     st.session_state.transition_text = ""
     
