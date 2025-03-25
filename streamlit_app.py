@@ -155,6 +155,6 @@ if st.session_state.level >= len(activities):
 
     st.markdown("### 🧠 Automation progress")
 st.markdown("---")
-    st.markdown("📸 **If this made you think — share it.** Screenshot your screen. Tag [#BetterThanYou] on social media.")
+st.markdown("📸 **If this made you think — share it.** Screenshot your screen. Tag [#BetterThanYou] on social media.")
 
 st.markdown("</div>", unsafe_allow_html=True)
