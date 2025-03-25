@@ -82,12 +82,13 @@ st.markdown("<div class='centered'>", unsafe_allow_html=True)
 if st.session_state.level == 0 and st.session_state.count == 0 and len(st.session_state.robots) == 0:
     st.title("Better Than You")
     st.markdown("### Let's see how much of your life a robot can automate.")
-    st.markdown("Do the task. Repeat it. Then hand it over. Slowly, your life is no longer yours.")
+    st.markdown("Do the task. Repeat it. Then hand it over. Your life is no longer yours.")
     st.markdown("### 🧠 Automation progress")
 st.markdown("---")
 
 # Mostrar barra de progreso
 progress = len(st.session_state.robots)
+st.markdown("### 🔄 Progress toward a fully automated life")
 st.progress(progress / len(activities))
 
 # Tarea actual
@@ -113,9 +114,10 @@ if st.session_state.level < len(activities):
 
             if st.session_state.level + 1 < len(activities):
                 next_task = activities[st.session_state.level + 1]
-                st.session_state.transition_text = f"I’ve been freed from '{task['name']}'. I finally get to '{next_task['name']}'... or so I thought."
+                st.session_state.transition_text = f"✅ Task complete: '{task['name']}'. I finally have time to '{next_task['name']}'… but will that last?"
             else:
-                st.session_state.transition_text = "Even family time... replaced."
+                st.session_state.transition_text = "✅ Even family time... replaced."
+
 
             st.session_state.level += 1
             st.session_state.count = 0
