@@ -74,6 +74,7 @@ if "robot_anim" not in st.session_state:
     st.session_state.robot_anim = {}
 if "transition_text" not in st.session_state:
     st.session_state.transition_text = ""
+    st.markdown("</div>", unsafe_allow_html=True)
 
 st.markdown("<div class='centered'>", unsafe_allow_html=True)
 
@@ -81,8 +82,9 @@ st.markdown("<div class='centered'>", unsafe_allow_html=True)
 if st.session_state.level == 0 and st.session_state.count == 0 and len(st.session_state.robots) == 0:
     st.title("Better Than You")
     st.markdown("### Let's see how much of your life a robot can automate.")
-    st.markdown("Do the task. Repeat it. Then buy a robot. Watch your role disappear.")
-    st.markdown("---")
+    st.markdown("Do the task. Repeat it. Then hand it over. Slowly, your life is no longer yours.")
+    st.markdown("### 🧠 Automation progress")
+st.markdown("---")
 
 # Mostrar barra de progreso
 progress = len(st.session_state.robots)
@@ -92,8 +94,9 @@ st.progress(progress / len(activities))
 if st.session_state.level < len(activities):
     task = activities[st.session_state.level]
     st.markdown(f"## Current task: {task['name']} {task['emoji']}")
-    st.markdown(f"**You've done it {st.session_state.count}/5 times**")
+    st.markdown(f"**You've done it {st.session_state.count}/3 times**")
 
+    st.markdown("<div style='min-height: 3em;'>", unsafe_allow_html=True)
     if st.session_state.transition_text:
         st.success(st.session_state.transition_text)
 
@@ -101,15 +104,16 @@ if st.session_state.level < len(activities):
         st.session_state.count += 1
         st.session_state.global_count += 1
         st.session_state.transition_text = ""
+    st.markdown("</div>", unsafe_allow_html=True)
 
-    if st.session_state.count >= 5:
+    if st.session_state.count >= 3:
         if st.button(f"🤖 Automate '{task['name']}' with a robot"):
             st.session_state.robots.append(task)
             st.session_state.robot_anim[task['name']] = 0
 
             if st.session_state.level + 1 < len(activities):
                 next_task = activities[st.session_state.level + 1]
-                st.session_state.transition_text = f"I'm free from '{task['name']}'. Now I can focus on '{next_task['name']}'."
+                st.session_state.transition_text = f"I’ve been freed from '{task['name']}'. I finally get to '{next_task['name']}'... or so I thought."
             else:
                 st.session_state.transition_text = "Even family time... replaced."
 
@@ -118,7 +122,7 @@ if st.session_state.level < len(activities):
 
 # Mostrar robots trabajando
 if len(st.session_state.robots) > 0:
-    st.markdown("### 🤖 Robots working for you:")
+    st.markdown("### 🤖 Robots now control these tasks:")
     for task in st.session_state.robots:
         container = st.empty()
         frame = st.session_state.robot_anim[task['name']]
@@ -149,7 +153,8 @@ if st.session_state.level >= len(activities):
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("---")
+    st.markdown("### 🧠 Automation progress")
+st.markdown("---")
     st.markdown("📸 **If this made you think — share it.** Screenshot your screen. Tag [#BetterThanYou] on social media.")
 
 st.markdown("</div>", unsafe_allow_html=True)
