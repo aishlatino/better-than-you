@@ -73,10 +73,11 @@ if "global_count" not in st.session_state:
 if "robot_anim" not in st.session_state:
     st.session_state.robot_anim = {}
 if "transition_text" not in st.session_state:
+if "robot_counts" not in st.session_state:
+    st.session_state.robot_counts = {}
     st.session_state.transition_text = ""
-    st.markdown("</div>", unsafe_allow_html=True)
+    
 
-st.markdown("<div class='centered'>", unsafe_allow_html=True)
 
 # Introducción
 if st.session_state.level == 0 and st.session_state.count == 0 and len(st.session_state.robots) == 0:
@@ -88,14 +89,13 @@ st.markdown("---")
 
 # Mostrar barra de progreso
 progress = len(st.session_state.robots)
-st.markdown("### 🔄 Progress toward a fully automated life")
 st.progress(progress / len(activities))
 
 # Tarea actual
 if st.session_state.level < len(activities):
     task = activities[st.session_state.level]
     st.markdown(f"## Current task: {task['name']} {task['emoji']}")
-    st.markdown(f"**You've done it {st.session_state.count}/3 times**")
+    st.markdown(f"**You've done it manually {st.session_state.count} times**")
 
     st.markdown("<div style='min-height: 3em;'>", unsafe_allow_html=True)
     if st.session_state.transition_text:
@@ -105,7 +105,7 @@ if st.session_state.level < len(activities):
         st.session_state.count += 1
         st.session_state.global_count += 1
         st.session_state.transition_text = ""
-    st.markdown("</div>", unsafe_allow_html=True)
+    
 
     if st.session_state.count >= 3:
         if st.button(f"🤖 Automate '{task['name']}' with a robot"):
@@ -131,7 +131,17 @@ if len(st.session_state.robots) > 0:
         icons = [task['emoji']] * 10
         icons[frame % 10] = "✅"
         display = " ".join(icons)
-        container.markdown(f"<div class='task-box'>{task['icon']} {task['name']} → {display}</div>", unsafe_allow_html=True)
+
+        # Init and update robot action count
+        if task['name'] not in st.session_state.robot_counts:
+            st.session_state.robot_counts[task['name']] = 0
+        st.session_state.robot_counts[task['name']] += 1
+
+        robot_count = st.session_state.robot_counts[task['name']]
+        container.markdown(
+            f"<div class='task-box'>{task['icon']} {task['name']} → {display}<br><small>The robot has done it {robot_count} times</small></div>",
+            unsafe_allow_html=True
+        )
         st.session_state.robot_anim[task['name']] = (frame + 1) % 10
 
 # Final: todas las tareas automatizadas
@@ -159,4 +169,4 @@ if st.session_state.level >= len(activities):
 st.markdown("---")
 st.markdown("📸 **If this made you think — share it.** Screenshot your screen. Tag [#BetterThanYou] on social media.")
 
-st.markdown("</div>", unsafe_allow_html=True)
+
