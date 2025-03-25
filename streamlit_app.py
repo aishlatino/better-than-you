@@ -73,9 +73,10 @@ if "global_count" not in st.session_state:
 if "robot_anim" not in st.session_state:
     st.session_state.robot_anim = {}
 if "transition_text" not in st.session_state:
-    if "robot_counts" not in st.session_state:
-        st.session_state.robot_counts = {}
-        st.session_state.transition_text = ""
+    st.session_state.transition_text = ""
+if "robot_counts" not in st.session_state:
+    st.session_state.robot_counts = {}
+    st.session_state.transition_text = ""
     
 
 
@@ -89,6 +90,7 @@ st.markdown("---")
 
 # Mostrar barra de progreso
 progress = len(st.session_state.robots)
+st.markdown("### 🔄 Progress toward a fully automated life")
 st.progress(progress / len(activities))
 
 # Tarea actual
@@ -112,11 +114,24 @@ if st.session_state.level < len(activities):
             st.session_state.robots.append(task)
             st.session_state.robot_anim[task['name']] = 0
 
+            
             if st.session_state.level + 1 < len(activities):
                 next_task = activities[st.session_state.level + 1]
-                st.session_state.transition_text = f"✅ Task complete: '{task['name']}'. I finally have time to '{next_task['name']}'… but will that last?"
+                transition_messages = {
+                    "Pick apples": "🍎 No more baskets! I finally get to clean and tidy my space.",
+                    "Clean the house": "🧼 Home is spotless — time to learn the freedom of driving.",
+                    "Drive a car": "🚗 With driving done, I can now enjoy creating meals from scratch.",
+                    "Cook a meal": "👨‍🍳 The kitchen runs itself. I can help heal people now.",
+                    "Diagnose a patient": "🩺 With others in good hands, I can write something meaningful.",
+                    "Write a poem": "📜 No more writer’s block — now I can paint without limits.",
+                    "Paint a picture": "🎨 My canvas is complete. Let’s compose something musical.",
+                    "Compose music": "🎵 With music playing, I can finally support someone emotionally.",
+                    "Offer emotional support": "🧠 With my care replaced, I can be present with my children.",
+                }
+                st.session_state.transition_text = f"✨ {transition_messages.get(task['name'], 'Task complete.')}"
             else:
-                st.session_state.transition_text = "✅ Even family time... replaced."
+                st.session_state.transition_text = "✨ Even family time... replaced."
+
 
 
             st.session_state.level += 1
