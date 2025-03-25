@@ -158,8 +158,7 @@ if len(st.session_state.robots) > 0:
 
 # Final: todas las tareas automatizadas
 if st.session_state.level >= len(activities):
-    st.markdown("## Everything you do, a robot can do better.")
-    st.markdown("You no longer need to farm, clean, write, create… or even love.")
+    st.markdown("## Everything you do, a robot can do better. You no longer need to work, clean, write, create… or even love.")
     st.markdown("#### So… what's the point of your existence?")
     st.markdown("""
     <div style='margin-top: 30px; text-align: center;'>
