@@ -1,11 +1,11 @@
 import streamlit as st
-st.set_page_config(page_title="Better Than You", layout="wide")
 from streamlit_autorefresh import st_autorefresh
-import streamlit.components.v1 as components
 import random
 
-# Estilo Blade Runner (HTML + CSS insertado)
-custom_css = """
+st.set_page_config(page_title="Better Than You", layout="wide")
+
+# Estilo centrado y oscuro para foco narrativo
+st.markdown("""
 <style>
 body {
     background: linear-gradient(135deg, #0d0d0d, #1a0033);
@@ -14,6 +14,7 @@ body {
 }
 h1, h2, h3, h4 {
     color: #ff66ff;
+    text-align: center;
 }
 .stButton>button {
     background-color: #1a1a1a;
@@ -35,15 +36,18 @@ h1, h2, h3, h4 {
     margin: 0.5em 0;
     border-radius: 10px;
 }
+.centered {
+    max-width: 700px;
+    margin: auto;
+    text-align: center;
+}
 </style>
-"""
+""", unsafe_allow_html=True)
 
-st.markdown(custom_css, unsafe_allow_html=True)
-st.markdown("<div style='max-width: 700px; margin: auto; text-align: center;'>", unsafe_allow_html=True)
+# Refresh loop para animaciones
+st_autorefresh(interval=1000, key="refresh")
 
-# Auto-refresh loop (every 0.5 sec)
-st_autorefresh(interval=500, key="refresh")
-
+# Definir actividades por nivel de sofisticación
 activities = [
     {"name": "Pick apples", "emoji": "🍎", "icon": "🧺"},
     {"name": "Clean the house", "emoji": "🧹", "icon": "🧽"},
@@ -53,10 +57,11 @@ activities = [
     {"name": "Write a poem", "emoji": "📜", "icon": "✍️"},
     {"name": "Paint a picture", "emoji": "🎨", "icon": "🖌️"},
     {"name": "Compose music", "emoji": "🎼", "icon": "🎵"},
-    {"name": "Write code", "emoji": "💻", "icon": "⌨️"},
     {"name": "Offer emotional support", "emoji": "🧠", "icon": "🫂"},
+    {"name": "Spend time with your children", "emoji": "👨‍👧‍👦", "icon": "🧸"},
 ]
 
+# Inicializar estado
 if "level" not in st.session_state:
     st.session_state.level = 0
 if "count" not in st.session_state:
@@ -70,39 +75,50 @@ if "robot_anim" not in st.session_state:
 if "transition_text" not in st.session_state:
     st.session_state.transition_text = ""
 
-st.title("Better Than You")
-st.markdown("### Start working. Do the task. Repeat it.")
+st.markdown("<div class='centered'>", unsafe_allow_html=True)
 
-# MAIN TASK LOOP
+# Introducción
+if st.session_state.level == 0 and st.session_state.count == 0 and len(st.session_state.robots) == 0:
+    st.title("Better Than You")
+    st.markdown("### Let's see how much of your life a robot can automate.")
+    st.markdown("Do the task. Repeat it. Then buy a robot. Watch your role disappear.")
+    st.markdown("---")
+
+# Mostrar barra de progreso
+progress = len(st.session_state.robots)
+st.progress(progress / len(activities))
+
+# Tarea actual
 if st.session_state.level < len(activities):
     task = activities[st.session_state.level]
+    st.markdown(f"## Current task: {task['name']} {task['emoji']}")
+    st.markdown(f"**You've done it {st.session_state.count}/5 times**")
 
     if st.session_state.transition_text:
-        st.markdown(f"<div class='task-box'><strong>{st.session_state.transition_text}</strong></div>", unsafe_allow_html=True)
+        st.success(st.session_state.transition_text)
 
-    st.markdown(f"### Current task: <span style='color:#80f0ff'>{task['name']} {task['emoji']}</span>", unsafe_allow_html=True)
-    st.markdown(f"**Total human actions completed:** {st.session_state.global_count}")
-
-    if st.button(f"Do '{task['name']}'"):
+    if st.button(f"✅ Do '{task['name']}'"):
         st.session_state.count += 1
         st.session_state.global_count += 1
         st.session_state.transition_text = ""
 
     if st.session_state.count >= 5:
-        if st.button(f"🤖 Buy robot to automate '{task['name']}'"):
+        if st.button(f"🤖 Automate '{task['name']}' with a robot"):
             st.session_state.robots.append(task)
             st.session_state.robot_anim[task['name']] = 0
 
             if st.session_state.level + 1 < len(activities):
                 next_task = activities[st.session_state.level + 1]
-                st.session_state.transition_text = f"I no longer have to spend time on '{task['name']}'. Now I can '{next_task['name']}'."
+                st.session_state.transition_text = f"I'm free from '{task['name']}'. Now I can focus on '{next_task['name']}'."
+            else:
+                st.session_state.transition_text = "Even family time... replaced."
 
             st.session_state.level += 1
             st.session_state.count = 0
 
-# ROBOTS IN ACTION
+# Mostrar robots trabajando
 if len(st.session_state.robots) > 0:
-    st.markdown("## 🤖 Robots working for you:")
+    st.markdown("### 🤖 Robots working for you:")
     for task in st.session_state.robots:
         container = st.empty()
         frame = st.session_state.robot_anim[task['name']]
@@ -112,30 +128,28 @@ if len(st.session_state.robots) > 0:
         container.markdown(f"<div class='task-box'>{task['icon']} {task['name']} → {display}</div>", unsafe_allow_html=True)
         st.session_state.robot_anim[task['name']] = (frame + 1) % 10
 
-# FINAL MESSAGE & CTA
+# Final: todas las tareas automatizadas
 if st.session_state.level >= len(activities):
-    st.header("Everything you do, a robot can do better.")
-    
-    summary = ", ".join([f"{t['name'].lower()}" for t in st.session_state.robots])
-    st.markdown(f"Robots now do it all — {summary}. Your life is now fully automated.")
-    
+    st.markdown("## Everything you do, a robot can do better.")
+    st.markdown("You no longer need to farm, clean, write, create… or even love.")
     st.markdown("#### So… what's the point of your existence?")
-    
-    cta_url = "https://aish.com/humans-vs-ai-will-we-remain-relevant/"
-    st.markdown(f"""
-        <div style='margin-top: 30px; text-align: center;'>
-            <a href='{cta_url}' target='_blank' style='
-                display: inline-block;
-                background-color: #ff1aff;
-                color: white;
-                padding: 1.2em 2em;
-                font-size: 1.4em;
-                border-radius: 12px;
-                text-decoration: none;
-                font-weight: bold;
-                box-shadow: 0 0 20px #ff1aff;
-            '>🌌 Discover it here</a>
-        </div>
+    st.markdown("""
+    <div style='margin-top: 30px; text-align: center;'>
+        <a href='https://aish.com/humans-vs-ai-will-we-remain-relevant/' target='_blank' style='
+            display: inline-block;
+            background-color: #ff1aff;
+            color: white;
+            padding: 1.2em 2em;
+            font-size: 1.4em;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: bold;
+            box-shadow: 0 0 20px #ff1aff;
+        '>🌌 Discover what makes you human</a>
+    </div>
     """, unsafe_allow_html=True)
+
+    st.markdown("---")
+    st.markdown("📸 **If this made you think — share it.** Screenshot your screen. Tag [#BetterThanYou] on social media.")
 
 st.markdown("</div>", unsafe_allow_html=True)
