@@ -124,7 +124,7 @@ if st.session_state.level < len(activities):
 
 # Mostrar robots trabajando
 if len(st.session_state.robots) > 0:
-    st.markdown("### 🤖 Robots now control these tasks:")
+    st.markdown("### 🤖 Robots now do these tasks instead of you:")
     for task in st.session_state.robots:
         container = st.empty()
         frame = st.session_state.robot_anim[task['name']]
