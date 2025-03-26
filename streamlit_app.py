@@ -66,7 +66,7 @@ activities = [
     {"name": "Spend time with your kids", "emoji": "👨‍👧‍👦", "icon": "🧸", "transition": "Even this… replaced.", "labels": ("Spent in person", "Done by robot", "Total")}
 ]
 
-# State setup
+# Init state
 for k in ["level", "robots", "robot_anim", "robot_counts", "manual_counts", "transition_text", "last_transition"]:
     if k not in st.session_state:
         st.session_state[k] = {} if "counts" in k or "anim" in k or "text" in k else "" if k == "last_transition" else 0 if k == "level" else []
@@ -75,7 +75,7 @@ for k in ["level", "robots", "robot_anim", "robot_counts", "manual_counts", "tra
 st.title("Better Than You")
 st.markdown("### Why do it yourself when a robot can do it for you?")
 
-# Counters (before task)
+# Show counters
 for task in activities:
     name = task["name"]
     st.session_state.manual_counts.setdefault(name, 0)
@@ -105,17 +105,18 @@ for task in activities:
             unsafe_allow_html=True
         )
 
-# Task section
+# Success message for past transition
+if st.session_state.last_transition:
+    st.success(st.session_state.last_transition)
+    st.session_state.last_transition = ""
+
+# Main task flow
 if st.session_state.level < len(activities):
     task = activities[st.session_state.level]
     name = task["name"]
 
     st.markdown("**Now we are going to...**")
     st.markdown(f"## {task['emoji']} {name}")
-
-    if st.session_state.last_transition:
-        st.success(st.session_state.last_transition)
-        st.session_state.last_transition = ""
 
     if st.button("✅ Do it manually", key=f"manual_{name}"):
         st.session_state.manual_counts[name] += 1
@@ -129,7 +130,7 @@ if st.session_state.level < len(activities):
         st.session_state.last_transition = transition
         st.session_state.level += 1
 
-# Ending
+# End message
 if st.session_state.level >= len(activities):
     st.markdown("## Everything you do, a robot can do better.")
     st.markdown("You no longer need to work, learn, talk, feel… or even love.")
