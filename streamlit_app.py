@@ -66,23 +66,16 @@ activities = [
     {"name": "Spend time with your kids", "emoji": "👨‍👧‍👦", "icon": "🧸", "transition": "Even this… replaced.", "labels": ("Spent in person", "Done by robot", "Total"), "cta": "Let's be with them"}
 ]
 
-# State init
-if "level" not in st.session_state:
-    st.session_state.level = 0
-if "robots" not in st.session_state:
-    st.session_state.robots = []
-if "robot_anim" not in st.session_state:
-    st.session_state.robot_anim = {}
-if "robot_counts" not in st.session_state:
-    st.session_state.robot_counts = {}
-if "manual_counts" not in st.session_state:
-    st.session_state.manual_counts = {}
-if "transition_text" not in st.session_state:
-    st.session_state.transition_text = {}
+# Initialize state
+for k in ["level", "robots", "robot_anim", "robot_counts", "manual_counts", "transition_text"]:
+    if k not in st.session_state:
+        st.session_state[k] = {} if "counts" in k or "anim" in k or "text" in k else 0 if k == "level" else []
 if "pending_transition" not in st.session_state:
     st.session_state.pending_transition = ""
-if "manual_feedback" not in st.session_state:
-    st.session_state.manual_feedback = {}
+if "pending_manual_feedback" not in st.session_state:
+    st.session_state.pending_manual_feedback = ""
+if "pending_manual_color" not in st.session_state:
+    st.session_state.pending_manual_color = "#ffcccc"
 
 # Title
 st.title("Better Than You")
@@ -118,17 +111,23 @@ for task in activities:
             unsafe_allow_html=True
         )
 
-# Transition message
-if st.session_state.pending_transition:
-    st.success(st.session_state.pending_transition)
-
-# Task logic
+# Task flow
 if st.session_state.level < len(activities):
     task = activities[st.session_state.level]
     name = task["name"]
 
     st.markdown(f"## {task['emoji']} {task['cta']}")
 
+    # Show feedback (manual or transition)
+    if st.session_state.pending_manual_feedback:
+        st.markdown(
+            f"<div style='background-color:{st.session_state.pending_manual_color}; padding: 1em; border-radius:8px;'>{st.session_state.pending_manual_feedback}</div>",
+            unsafe_allow_html=True
+        )
+    elif st.session_state.pending_transition:
+        st.success(st.session_state.pending_transition)
+
+    # Buttons
     manual_clicked = st.button("✅ Do it manually", key=f"manual_{name}")
     auto_clicked = st.button("🤖 Let's automate this", key=f"auto_{name}")
 
@@ -143,22 +142,23 @@ if st.session_state.level < len(activities):
 
     if manual_clicked:
         st.session_state.manual_counts[name] += 1
-        st.session_state.pending_transition = ""
         count = st.session_state.manual_counts[name]
         shade = red_shades[min(count - 1, len(red_shades)-1)]
         msg = feedback_msgs[min(count - 1, len(feedback_msgs)-1)]
-        st.markdown(f"<div style='background-color:{shade}; padding: 1em; border-radius:8px;'>{msg}</div>", unsafe_allow_html=True)
+        st.session_state.pending_manual_feedback = msg
+        st.session_state.pending_manual_color = shade
+        st.session_state.pending_transition = ""
 
     if auto_clicked:
         if name not in st.session_state.robots:
             st.session_state.robots.append(name)
         st.session_state.robot_anim[name] = 0
         transition = f"✨ {task['transition']}"
-        st.session_state.transition_text[name] = transition
         st.session_state.pending_transition = transition
+        st.session_state.pending_manual_feedback = ""
         st.session_state.level += 1
 
-# Final message
+# Final screen
 if st.session_state.level >= len(activities):
     st.markdown("## Everything you do, a robot can do better.")
     st.markdown("You no longer need to work, learn, talk, feel… or even love.")
