@@ -58,30 +58,29 @@ h1, h2, h3 {
 
 st_autorefresh(interval=100, key="refresh")
 
-# Rav Noach Weinberg's 5 levels of pleasure reflected as tasks
 activities = [
     {
-        "name": "Eat delicious food", "emoji": "🍲", "icon": "🍽️",
-        "transition": "No more cooking or eating stress — now I can write and create.",
-        "labels": ("Enjoyed manually", "Served by robot", "Total"),
-        "cta": "Let's enjoy a good meal"
+        "name": "Go to work", "emoji": "🏢", "icon": "💼",
+        "transition": "Work? Delegated. I can now focus on meaningful creativity.",
+        "labels": ("Worked manually", "Done by robot", "Total"),
+        "cta": "Let's go to work"
     },
     {
-        "name": "Create something meaningful", "emoji": "📝", "icon": "🎨",
-        "transition": "Creative energy? Delegated. Now I can sit back and take in wisdom.",
-        "labels": ("Created manually", "Created by robot", "Total"),
+        "name": "Write a book", "emoji": "📖", "icon": "✍️",
+        "transition": "With writing off my plate, it's time to absorb wisdom.",
+        "labels": ("Written manually", "Written by robot", "Total"),
         "cta": "Let's write a book"
     },
     {
-        "name": "Learn something deep", "emoji": "📘", "icon": "🧠",
-        "transition": "No need to read — I have time to connect with someone I care about.",
-        "labels": ("Read myself", "Read by robot", "Total"),
+        "name": "Read a book", "emoji": "📚", "icon": "📘",
+        "transition": "Learning complete. Let’s connect with someone real.",
+        "labels": ("Read manually", "Read by robot", "Total"),
         "cta": "Let's read a book"
     },
     {
         "name": "Talk with a friend", "emoji": "🗣️", "icon": "🫂",
         "transition": "Even connection can be simulated. At least I have my family... right?",
-        "labels": ("Spoken in person", "Simulated by robot", "Total"),
+        "labels": ("Talked in person", "Simulated by robot", "Total"),
         "cta": "Let's talk with a friend"
     },
     {
@@ -92,7 +91,46 @@ activities = [
     }
 ]
 
-# State init
+# Red feedback messages per task
+red_feedbacks = {
+    "Go to work": [
+        "Nice hustle! Another day at the office.",
+        "Still clocking in manually, huh?",
+        "Work-life balance? Robots don’t sleep.",
+        "Time is money. Robots work for free.",
+        "⏳ Time to let go. Automate already!"
+    ],
+    "Write a book": [
+        "Beautiful! You wrote your first page.",
+        "Another chapter done!",
+        "Still writing by hand? You sure?",
+        "Typing again? Robots write faster.",
+        "🧠 You could be reading instead…"
+    ],
+    "Read a book": [
+        "Great! A new book opened.",
+        "Deep thoughts, again?",
+        "Let an AI summarize it?",
+        "You read that already, remember?",
+        "📚 Robots absorb this in seconds."
+    ],
+    "Talk with a friend": [
+        "Nice talk! That felt good.",
+        "Still doing it in person?",
+        "Same story again, huh?",
+        "A chatbot could listen too.",
+        "🤖 You’re replaceable in convo."
+    ],
+    "Spend time with your kids": [
+        "Beautiful moment shared 💞",
+        "Still spending time manually?",
+        "They grow up fast... so does AI.",
+        "Hug them while you can.",
+        "🤖 Even parenting is optional now..."
+    ]
+}
+
+# Init state
 for k in ["level", "robots", "robot_anim", "robot_counts", "manual_counts", "transition_text", "manual_clicked"]:
     if k not in st.session_state:
         st.session_state[k] = {} if "counts" in k or "anim" in k or "text" in k or "clicked" in k else 0 if k == "level" else []
@@ -131,21 +169,21 @@ for task in activities:
 
     if manual > 0 or auto > 0 or name in st.session_state.robots:
         st.markdown(
-            f"<div class='count-box'>{task['emoji']} <strong>{name}</strong>: "
+            f"<div class='count-box'>{task['emoji']} <strong>{task['cta']}</strong>: "
             f"{labels[0]}: {manual} &nbsp;&nbsp; | &nbsp;&nbsp; "
             f"{labels[1]}: {auto} &nbsp;&nbsp; | &nbsp;&nbsp; "
             f"<span class='total-count'>{labels[2]}: {total}</span>{robot_display}</div>",
             unsafe_allow_html=True
         )
 
-# Main flow
+# Task
 if st.session_state.level < len(activities):
     task = activities[st.session_state.level]
     name = task["name"]
 
     st.markdown(f"## {task['emoji']} {task['cta']}")
 
-    # Message (manual or automation)
+    # Message
     if st.session_state.pending_manual_feedback:
         st.markdown(
             f"<div style='background-color:{st.session_state.pending_manual_color}; padding: 1.2em; border-radius:8px; margin-bottom:1em;'>{st.session_state.pending_manual_feedback}</div>",
@@ -160,22 +198,16 @@ if st.session_state.level < len(activities):
     manual_clicked = st.button(manual_label, key=f"manual_{name}")
     auto_clicked = st.button("🤖 Let's automate this", key=f"auto_{name}")
 
-    # Red messages
-    red_shades = ["#ffcccc", "#ff9999", "#ff6666", "#ff3333", "#cc0000"]
-    friendly_msgs = [
-        f"👏 Amazing! You just enjoyed your first {name.lower()}.",
-        f"💪 Well done — another {name.lower()} completed.",
-        f"You're getting good at this... still doing it by hand?",
-        f"Hmm, still no robot? It's getting repetitive...",
-        f"🤖 This could really be automated now, just saying..."
-    ]
-
     if manual_clicked:
         st.session_state.manual_counts[name] += 1
         st.session_state.manual_clicked[name] = True
         count = st.session_state.manual_counts[name]
-        msg = friendly_msgs[min(count-1, len(friendly_msgs)-1)]
-        color = red_shades[min(count-1, len(red_shades)-1)]
+        msg_list = red_feedbacks.get(name, ["Well done!"])
+        msg = msg_list[min(count - 1, len(msg_list) - 1)] if count <= len(msg_list) else msg_list[-1]
+        # Darken toward black (log-ish scale)
+        intensity = int(204 - min(count * 2, 204))  # starts at #ffcccc
+        hex_val = f"{intensity:02x}"
+        color = f"#ff{hex_val}{hex_val}"
         st.session_state.pending_manual_feedback = msg
         st.session_state.pending_manual_color = color
         st.session_state.pending_transition = ""
@@ -190,10 +222,10 @@ if st.session_state.level < len(activities):
         st.session_state.manual_clicked[name] = False
         st.session_state.level += 1
 
-# Final message
+# Ending
 if st.session_state.level >= len(activities):
     st.markdown("## Everything you do, a robot can do better.")
-    st.markdown("You no longer need to eat, create, learn, connect… or even spend time with your loved ones.")
+    st.markdown("You no longer need to work, write, read, connect… or even spend time with your loved ones.")
     st.markdown("#### So… what's the point of your existence?")
     st.markdown("""
     <div style='margin-top: 30px;'>
