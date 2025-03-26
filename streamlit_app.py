@@ -4,7 +4,6 @@ from streamlit_autorefresh import st_autorefresh
 
 st.set_page_config(page_title="Better Than You", layout="wide")
 
-# Custom CSS
 st.markdown("""
 <style>
 body {
@@ -59,25 +58,24 @@ h1, h2, h3 {
 
 st_autorefresh(interval=100, key="refresh")
 
-# Activity definitions
 activities = [
-    {"name": "Work", "emoji": "💼", "icon": "🧠", "transition": "No more meetings or emails — now I can write that book.", "labels": ("done", "automated", "total")},
-    {"name": "Write a book", "emoji": "📖", "icon": "✍️", "transition": "With writing done, I finally have time to read and reflect.", "labels": ("written manually", "written by robot", "total")},
-    {"name": "Read a book", "emoji": "📚", "icon": "👓", "transition": "Books read, brain fed — now I want to connect with someone.", "labels": ("read myself", "read by robot", "total")},
-    {"name": "Talk to a friend", "emoji": "🗣️", "icon": "🫂", "transition": "Now that I’ve connected, I just want to be present with my family.", "labels": ("talked in person", "talked by robot", "total")},
-    {"name": "Spend time with your kids", "emoji": "👨‍👧‍👦", "icon": "🧸", "transition": "Even this… replaced.", "labels": ("spent in person", "done by robot", "total")}
+    {"name": "Work", "emoji": "💼", "icon": "🧠", "transition": "No more meetings or emails — now I can write that book.", "labels": ("Done manually", "Automated", "Total")},
+    {"name": "Write a book", "emoji": "📖", "icon": "✍️", "transition": "With writing done, I finally have time to read and reflect.", "labels": ("Written manually", "Written by robot", "Total")},
+    {"name": "Read a book", "emoji": "📚", "icon": "👓", "transition": "Books read, brain fed — now I want to connect with someone.", "labels": ("Read by myself", "Read by robot", "Total")},
+    {"name": "Talk to a friend", "emoji": "🗣️", "icon": "🫂", "transition": "Now that I’ve connected, I just want to be present with my family.", "labels": ("Talked in person", "Talked by robot", "Total")},
+    {"name": "Spend time with your kids", "emoji": "👨‍👧‍👦", "icon": "🧸", "transition": "Even this… replaced.", "labels": ("Spent in person", "Done by robot", "Total")}
 ]
 
-# State initialization
-for k in ["level", "robots", "robot_anim", "robot_counts", "manual_counts", "transition_text"]:
+# State setup
+for k in ["level", "robots", "robot_anim", "robot_counts", "manual_counts", "transition_text", "last_transition"]:
     if k not in st.session_state:
-        st.session_state[k] = {} if "counts" in k or "anim" in k or "text" in k else 0 if k == "level" else []
+        st.session_state[k] = {} if "counts" in k or "anim" in k or "text" in k else "" if k == "last_transition" else 0 if k == "level" else []
 
 # Title
 st.title("Better Than You")
 st.markdown("### Why do it yourself when a robot can do it for you?")
 
-# Progress counters (always visible)
+# Counters (before task)
 for task in activities:
     name = task["name"]
     st.session_state.manual_counts.setdefault(name, 0)
@@ -101,36 +99,37 @@ for task in activities:
     if manual > 0 or auto > 0 or name in st.session_state.robots:
         st.markdown(
             f"<div class='count-box'>{task['emoji']} <strong>{name}</strong>: "
-            f"{labels[0].capitalize()}: {manual} &nbsp;&nbsp; | &nbsp;&nbsp; "
-            f"{labels[1].capitalize()}: {auto} &nbsp;&nbsp; | &nbsp;&nbsp; "
-            f"<span class='total-count'>{labels[2].capitalize()}: {total}</span>{robot_display}</div>",
+            f"{labels[0]}: {manual} &nbsp;&nbsp; | &nbsp;&nbsp; "
+            f"{labels[1]}: {auto} &nbsp;&nbsp; | &nbsp;&nbsp; "
+            f"<span class='total-count'>{labels[2]}: {total}</span>{robot_display}</div>",
             unsafe_allow_html=True
         )
 
-# Main task logic
+# Task section
 if st.session_state.level < len(activities):
     task = activities[st.session_state.level]
     name = task["name"]
 
-    st.markdown(f"**Now we are going to...**")
+    st.markdown("**Now we are going to...**")
     st.markdown(f"## {task['emoji']} {name}")
 
-    if name in st.session_state.transition_text:
-        st.success(st.session_state.transition_text[name])
+    if st.session_state.last_transition:
+        st.success(st.session_state.last_transition)
+        st.session_state.last_transition = ""
 
-    with st.container():
-        mcol, acol = st.columns(2)
-        with mcol:
-            if st.button("✅ Do it manually", key=f"manual_{name}"):
-                st.session_state.manual_counts[name] += 1
-        with acol:
-            if st.button("🤖 Let's automate this", key=f"auto_{name}"):
-                if name not in st.session_state.robots:
-                    st.session_state.robots.append(name)
-                st.session_state.transition_text[name] = f"✨ {task['transition']}"
-                st.session_state.level += 1
+    if st.button("✅ Do it manually", key=f"manual_{name}"):
+        st.session_state.manual_counts[name] += 1
 
-# End message
+    if st.button("🤖 Let's automate this", key=f"auto_{name}"):
+        if name not in st.session_state.robots:
+            st.session_state.robots.append(name)
+        st.session_state.robot_anim[name] = 0
+        transition = f"✨ {task['transition']}"
+        st.session_state.transition_text[name] = transition
+        st.session_state.last_transition = transition
+        st.session_state.level += 1
+
+# Ending
 if st.session_state.level >= len(activities):
     st.markdown("## Everything you do, a robot can do better.")
     st.markdown("You no longer need to work, learn, talk, feel… or even love.")
