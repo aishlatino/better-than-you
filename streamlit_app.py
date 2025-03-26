@@ -97,36 +97,31 @@ red_feedbacks = {
         "Nice hustle! Another day at the office.",
         "Still clocking in manually, huh?",
         "Work-life balance? Robots don’t sleep.",
-        "Time is money. Robots work for free.",
-        "⏳ Time to let go. Automate already!"
+        "Time is money. Robots work for free."
     ],
     "Write a book": [
         "Beautiful! You wrote your first page.",
         "Another chapter done!",
         "Still writing by hand? You sure?",
-        "Typing again? Robots write faster.",
-        "🧠 You could be reading instead…"
+        "Typing again? Robots write faster."
     ],
     "Read a book": [
         "Great! A new book opened.",
         "Deep thoughts, again?",
         "Let an AI summarize it?",
-        "You read that already, remember?",
-        "📚 Robots absorb this in seconds."
+        "You read that already, remember?"
     ],
     "Talk with a friend": [
         "Nice talk! That felt good.",
         "Still doing it in person?",
         "Same story again, huh?",
-        "A chatbot could listen too.",
-        "🤖 You’re replaceable in convo."
+        "A chatbot could listen too."
     ],
     "Spend time with your kids": [
         "Beautiful moment shared 💞",
         "Still spending time manually?",
         "They grow up fast... so does AI.",
-        "Hug them while you can.",
-        "🤖 Even parenting is optional now..."
+        "Hug them while you can."
     ]
 }
 
@@ -146,28 +141,26 @@ if "pending_manual_color" not in st.session_state:
 st.title("Better Than You")
 st.markdown("### Why do it yourself when a robot can do it for you?")
 
-# Counters
-for task in activities:
+# Counters - appear as soon as category starts
+for i, task in enumerate(activities):
     name = task["name"]
     st.session_state.manual_counts.setdefault(name, 0)
     st.session_state.robot_counts.setdefault(name, 0)
+    if i <= st.session_state.level:
+        manual = st.session_state.manual_counts[name]
+        auto = st.session_state.robot_counts[name]
+        total = manual + auto
+        labels = task["labels"]
+        robot_display = ""
+        if name in st.session_state.robots:
+            st.session_state.robot_anim.setdefault(name, 0)
+            frame = st.session_state.robot_anim[name]
+            icons = [task["emoji"]] * 10
+            icons[frame % 10] = "✅"
+            robot_display = f"<br>{' '.join(icons)}"
+            st.session_state.robot_anim[name] = (frame + 1) % 10
+            st.session_state.robot_counts[name] += 1
 
-    manual = st.session_state.manual_counts[name]
-    auto = st.session_state.robot_counts[name]
-    total = manual + auto
-    labels = task["labels"]
-
-    robot_display = ""
-    if name in st.session_state.robots:
-        st.session_state.robot_anim.setdefault(name, 0)
-        frame = st.session_state.robot_anim[name]
-        icons = [task["emoji"]] * 10
-        icons[frame % 10] = "✅"
-        robot_display = f"<br>{' '.join(icons)}"
-        st.session_state.robot_anim[name] = (frame + 1) % 10
-        st.session_state.robot_counts[name] += 1
-
-    if manual > 0 or auto > 0 or name in st.session_state.robots:
         st.markdown(
             f"<div class='count-box'>{task['emoji']} <strong>{task['cta']}</strong>: "
             f"{labels[0]}: {manual} &nbsp;&nbsp; | &nbsp;&nbsp; "
@@ -183,7 +176,6 @@ if st.session_state.level < len(activities):
 
     st.markdown(f"## {task['emoji']} {task['cta']}")
 
-    # Message
     if st.session_state.pending_manual_feedback:
         st.markdown(
             f"<div style='background-color:{st.session_state.pending_manual_color}; padding: 1.2em; border-radius:8px; margin-bottom:1em;'>{st.session_state.pending_manual_feedback}</div>",
@@ -192,7 +184,6 @@ if st.session_state.level < len(activities):
     elif st.session_state.pending_transition:
         st.success(st.session_state.pending_transition)
 
-    # Buttons
     already_clicked = st.session_state.manual_clicked.get(name, False)
     manual_label = "✅ Do it manually again..." if already_clicked else "✅ Do it manually"
     manual_clicked = st.button(manual_label, key=f"manual_{name}")
@@ -203,10 +194,12 @@ if st.session_state.level < len(activities):
         st.session_state.manual_clicked[name] = True
         count = st.session_state.manual_counts[name]
         msg_list = red_feedbacks.get(name, ["Well done!"])
-        msg = msg_list[min(count - 1, len(msg_list) - 1)] if count <= len(msg_list) else msg_list[-1]
-        # Darken toward black (log-ish scale)
-        intensity = int(204 - min(count * 2, 204))  # starts at #ffcccc
-        hex_val = f"{intensity:02x}"
+        if count <= len(msg_list):
+            msg = msg_list[count - 1]
+        else:
+            msg = msg_list[-1] + " 🤖 Maybe it's time to automate?"
+        shade_val = max(0, 204 - int(count * 2))
+        hex_val = f"{shade_val:02x}"
         color = f"#ff{hex_val}{hex_val}"
         st.session_state.pending_manual_feedback = msg
         st.session_state.pending_manual_color = color
@@ -222,7 +215,7 @@ if st.session_state.level < len(activities):
         st.session_state.manual_clicked[name] = False
         st.session_state.level += 1
 
-# Ending
+# End
 if st.session_state.level >= len(activities):
     st.markdown("## Everything you do, a robot can do better.")
     st.markdown("You no longer need to work, write, read, connect… or even spend time with your loved ones.")
@@ -231,14 +224,14 @@ if st.session_state.level >= len(activities):
     <div style='margin-top: 30px;'>
         <a href='https://aish.com/humans-vs-ai-will-we-remain-relevant/' target='_blank' style='
             display: inline-block;
-            background-color: #ff1aff;
+            background-color: #4400ff;
             color: white;
             padding: 1.2em 2em;
             font-size: 1.4em;
             border-radius: 12px;
             text-decoration: none;
             font-weight: bold;
-            box-shadow: 0 0 20px #ff1aff;
+            box-shadow: 0 0 20px #4400ff;
         '>🌌 Discover what makes you human</a>
     </div>
     """, unsafe_allow_html=True)
