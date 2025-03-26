@@ -122,7 +122,8 @@ red_feedbacks = {
         "🤗 Another memory made… but how many more can you afford to make?",
         "🧠 You're here now… but what if you could give them more by doing less?",
         "👀 You keep showing up, but could someone else do it better?",
-        "🤖 Even parenting can be optimized now... maybe it's time to automate?",
+        "🤖 Even parenting can be optimized now... maybe it’s time to automate?"
+    ],
 }
 
 # Init state
