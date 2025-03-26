@@ -118,11 +118,11 @@ red_feedbacks = {
         "A chatbot could listen too."
     ],
     "Spend time with your kids": [
-        "Beautiful moment shared 💞",
-        "Still spending time manually?",
-        "They grow up fast... so does AI.",
-        "Hug them while you can."
-    ]
+        "🧸 A precious moment with your child — nothing else matters.",
+        "🤗 Another memory made… but how many more can you afford to make?",
+        "🧠 You're here now… but what if you could give them more by doing less?",
+        "👀 You keep showing up, but could someone else do it better?",
+        "🤖 Even parenting can be optimized now... maybe it's time to automate?",
 }
 
 # Init state
