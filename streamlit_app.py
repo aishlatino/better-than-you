@@ -238,4 +238,4 @@ if st.session_state.level >= len(activities):
     """, unsafe_allow_html=True)
 
 st.markdown("---")
-st.markdown("🤖 Code made by ChatGPT")
+st.markdown("🤖 Code made by ChatGPT. No humans were harmed in the making of this product.")
