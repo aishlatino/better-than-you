@@ -59,20 +59,30 @@ h1, h2, h3 {
 st_autorefresh(interval=100, key="refresh")
 
 activities = [
-    {"name": "Work", "emoji": "💼", "icon": "🧠", "transition": "No more meetings or emails — now I can write that book.", "labels": ("Done manually", "Automated", "Total")},
-    {"name": "Write a book", "emoji": "📖", "icon": "✍️", "transition": "With writing done, I finally have time to read and reflect.", "labels": ("Written manually", "Written by robot", "Total")},
-    {"name": "Read a book", "emoji": "📚", "icon": "👓", "transition": "Books read, brain fed — now I want to connect with someone.", "labels": ("Read by myself", "Read by robot", "Total")},
-    {"name": "Talk to a friend", "emoji": "🗣️", "icon": "🫂", "transition": "Now that I’ve connected, I just want to be present with my family.", "labels": ("Talked in person", "Talked by robot", "Total")},
-    {"name": "Spend time with your kids", "emoji": "👨‍👧‍👦", "icon": "🧸", "transition": "Even this… replaced.", "labels": ("Spent in person", "Done by robot", "Total")}
+    {"name": "Work", "emoji": "💼", "icon": "🧠", "transition": "No more meetings or emails — now I can write that book.", "labels": ("Done manually", "Automated", "Total"), "cta": "Let's work"},
+    {"name": "Write a book", "emoji": "📖", "icon": "✍️", "transition": "With writing done, I finally have time to read and reflect.", "labels": ("Written manually", "Written by robot", "Total"), "cta": "Let's write"},
+    {"name": "Read a book", "emoji": "📚", "icon": "👓", "transition": "Books read, brain fed — now I want to connect with someone.", "labels": ("Read by myself", "Read by robot", "Total"), "cta": "Let's read"},
+    {"name": "Talk to a friend", "emoji": "🗣️", "icon": "🫂", "transition": "Now that I’ve connected, I just want to be present with my family.", "labels": ("Talked in person", "Talked by robot", "Total"), "cta": "Let's talk"},
+    {"name": "Spend time with your kids", "emoji": "👨‍👧‍👦", "icon": "🧸", "transition": "Even this… replaced.", "labels": ("Spent in person", "Done by robot", "Total"), "cta": "Let's be with them"}
 ]
 
 # State init
-for k in ["level", "robots", "robot_anim", "robot_counts", "manual_counts", "transition_text"]:
-    if k not in st.session_state:
-        st.session_state[k] = {} if "counts" in k or "anim" in k or "text" in k else 0 if k == "level" else []
-
+if "level" not in st.session_state:
+    st.session_state.level = 0
+if "robots" not in st.session_state:
+    st.session_state.robots = []
+if "robot_anim" not in st.session_state:
+    st.session_state.robot_anim = {}
+if "robot_counts" not in st.session_state:
+    st.session_state.robot_counts = {}
+if "manual_counts" not in st.session_state:
+    st.session_state.manual_counts = {}
+if "transition_text" not in st.session_state:
+    st.session_state.transition_text = {}
 if "pending_transition" not in st.session_state:
     st.session_state.pending_transition = ""
+if "manual_feedback" not in st.session_state:
+    st.session_state.manual_feedback = {}
 
 # Title
 st.title("Better Than You")
@@ -108,34 +118,47 @@ for task in activities:
             unsafe_allow_html=True
         )
 
-# Show transition message
+# Transition message
 if st.session_state.pending_transition:
     st.success(st.session_state.pending_transition)
 
-# Main task
+# Task logic
 if st.session_state.level < len(activities):
     task = activities[st.session_state.level]
     name = task["name"]
 
-    st.markdown("**Now we are going to...**")
-    st.markdown(f"## {task['emoji']} {name}")
+    st.markdown(f"## {task['emoji']} {task['cta']}")
 
     manual_clicked = st.button("✅ Do it manually", key=f"manual_{name}")
     auto_clicked = st.button("🤖 Let's automate this", key=f"auto_{name}")
 
+    red_shades = ["#ffcccc", "#ff9999", "#ff6666", "#ff3333", "#ff0000"]
+    feedback_msgs = [
+        f"Nice! You just completed: {name}.",
+        f"Great job doing '{name}' again.",
+        f"You seem to like doing '{name}' by hand...",
+        f"Still going manually? Robots could help.",
+        f"Maybe it’s time to automate '{name}'?"
+    ]
+
     if manual_clicked:
         st.session_state.manual_counts[name] += 1
         st.session_state.pending_transition = ""
+        count = st.session_state.manual_counts[name]
+        shade = red_shades[min(count - 1, len(red_shades)-1)]
+        msg = feedback_msgs[min(count - 1, len(feedback_msgs)-1)]
+        st.markdown(f"<div style='background-color:{shade}; padding: 1em; border-radius:8px;'>{msg}</div>", unsafe_allow_html=True)
 
     if auto_clicked:
         if name not in st.session_state.robots:
             st.session_state.robots.append(name)
         st.session_state.robot_anim[name] = 0
-        st.session_state.transition_text[name] = f"✨ {task['transition']}"
-        st.session_state.pending_transition = f"✨ {task['transition']}"
+        transition = f"✨ {task['transition']}"
+        st.session_state.transition_text[name] = transition
+        st.session_state.pending_transition = transition
         st.session_state.level += 1
 
-# Ending
+# Final message
 if st.session_state.level >= len(activities):
     st.markdown("## Everything you do, a robot can do better.")
     st.markdown("You no longer need to work, learn, talk, feel… or even love.")
