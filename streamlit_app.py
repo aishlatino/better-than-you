@@ -147,7 +147,7 @@ for i, task in enumerate(activities):
     name = task["name"]
     st.session_state.manual_counts.setdefault(name, 0)
     st.session_state.robot_counts.setdefault(name, 0)
-    if i <= st.session_state.level:
+    if i < st.session_state.level or (i == st.session_state.level and (i > 0 or st.session_state.manual_counts.get(task['name'], 0) > 0)):
         manual = st.session_state.manual_counts[name]
         auto = st.session_state.robot_counts[name]
         total = manual + auto
