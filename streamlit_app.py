@@ -20,31 +20,17 @@ h1, h2, h3 {
     background-color: #1a1a1a;
     color: #80f0ff;
     border: 1px solid #80f0ff;
-    padding: 0.6em 1.2em;
+    padding: 0.5em 1em;
     border-radius: 8px;
     font-size: 1em;
     transition: 0.3s ease;
-    margin: 0.25em 0;
-    width: 100%;
-    text-align: left;
+    margin: 0.25em 0.25em 0.25em 0;
+    width: auto;
+    display: inline-block;
 }
 .stButton>button:hover {
     background-color: #80f0ff;
     color: #0d0d0d;
-}
-.manual-button button {
-    background-color: #3333aa;
-    border-color: #3333aa;
-}
-.manual-button button:hover {
-    background-color: #6666ff;
-}
-.automate-button button {
-    background-color: #aa3388;
-    border-color: #aa3388;
-}
-.automate-button button:hover {
-    background-color: #ff66cc;
 }
 .task-box {
     background-color: rgba(255, 255, 255, 0.05);
@@ -71,11 +57,11 @@ h1, h2, h3 {
 st_autorefresh(interval=100, key="refresh")
 
 activities = [
-    {"name": "Work", "emoji": "💼", "icon": "🧠", "transition": "No more meetings or emails — now I can write that book."},
-    {"name": "Write a book", "emoji": "📖", "icon": "✍️", "transition": "With writing done, I finally have time to read and reflect."},
-    {"name": "Read a book", "emoji": "📚", "icon": "👓", "transition": "Books read, brain fed — now I want to connect with someone."},
-    {"name": "Talk to a friend", "emoji": "🗣️", "icon": "🫂", "transition": "Now that I’ve connected, I just want to be present with my family."},
-    {"name": "Spend time with your kids", "emoji": "👨‍👧‍👦", "icon": "🧸", "transition": "Even this… replaced."}
+    {"name": "Work", "emoji": "💼", "icon": "🧠", "transition": "No more meetings or emails — now I can write that book.", "labels": ("done", "automated", "total")},
+    {"name": "Write a book", "emoji": "📖", "icon": "✍️", "transition": "With writing done, I finally have time to read and reflect.", "labels": ("written manually", "written by robot", "total")},
+    {"name": "Read a book", "emoji": "📚", "icon": "👓", "transition": "Books read, brain fed — now I want to connect with someone.", "labels": ("read myself", "read by robot", "total")},
+    {"name": "Talk to a friend", "emoji": "🗣️", "icon": "🫂", "transition": "Now that I’ve connected, I just want to be present with my family.", "labels": ("talked in person", "talked by robot", "total")},
+    {"name": "Spend time with your kids", "emoji": "👨‍👧‍👦", "icon": "🧸", "transition": "Even this… replaced.", "labels": ("spent in person", "done by robot", "total")}
 ]
 
 # Init state
@@ -90,67 +76,91 @@ if "robot_counts" not in st.session_state:
 if "manual_counts" not in st.session_state:
     st.session_state.manual_counts = {}
 if "transition_text" not in st.session_state:
-    st.session_state.transition_text = ""
+    st.session_state.transition_text = {}
 
 # Title
 st.title("Better Than You")
 st.markdown("### Why do it yourself when a robot can do it for you?")
 
-# Current task
+# Current task flow
 if st.session_state.level < len(activities):
     task = activities[st.session_state.level]
-    task_name = task['name']
+    name = task["name"]
 
-    if task_name not in st.session_state.robot_counts:
-        st.session_state.robot_counts[task_name] = 0
-    if task_name not in st.session_state.manual_counts:
-        st.session_state.manual_counts[task_name] = 0
+    if name not in st.session_state.manual_counts:
+        st.session_state.manual_counts[name] = 0
+    if name not in st.session_state.robot_counts:
+        st.session_state.robot_counts[name] = 0
 
-    st.markdown(f"**Now we are going to...**")
-    st.markdown(f"## {task['emoji']} {task_name}")
+    manual = st.session_state.manual_counts.get(name, 0)
+    auto = st.session_state.robot_counts.get(name, 0)
+    total = manual + auto
+    manual_label, auto_label, total_label = task["labels"]
 
-    if st.session_state.transition_text:
-        st.success(st.session_state.transition_text)
-
-    # Buttons stacked
-    if st.button("✅ Do it manually"):
-        st.session_state.manual_counts[task_name] += 1
-
-    if st.button("🤖 Let's automate this"):
-        st.session_state.robots.append(task)
-        st.session_state.robot_anim[task_name] = 0
-        st.session_state.transition_text = f"✨ {task['transition']}"
-        st.session_state.level += 1
-
-# Show counters for each task
-for t in activities:
-    name = t["name"]
-    if name in st.session_state.manual_counts or name in st.session_state.robot_counts:
-        manual = st.session_state.manual_counts.get(name, 0)
-        auto = st.session_state.robot_counts.get(name, 0)
-        total = manual + auto
-        st.markdown(f"<div class='count-box'>{t['emoji']} <strong>{name}</strong>: Written manually: {manual} &nbsp;&nbsp; | &nbsp;&nbsp; By robot: {auto} &nbsp;&nbsp; | &nbsp;&nbsp; <span class='total-count'>Total: {total}</span></div>", unsafe_allow_html=True)
-
-# Robots working
-if len(st.session_state.robots) > 0:
-    st.markdown("### 🤖 Automated tasks in progress:")
-    for task in st.session_state.robots:
-        container = st.empty()
-        name = task["name"]
+    robot_display = ""
+    if name in st.session_state.robots:
+        if name not in st.session_state.robot_anim:
+            st.session_state.robot_anim[name] = 0
         frame = st.session_state.robot_anim[name]
-        icons = [task['emoji']] * 10
+        icons = [task["emoji"]] * 10
         icons[frame % 10] = "✅"
-        display = " ".join(icons)
-
+        robot_display = f"<br>{' '.join(icons)}"
+        st.session_state.robot_anim[name] = (frame + 1) % 10
         st.session_state.robot_counts[name] += 1
 
-        container.markdown(
-            f"<div class='task-box'>{task['icon']} {name} → {display}<br><small>The robot has done this {st.session_state.robot_counts[name]} times</small></div>",
-            unsafe_allow_html=True
-        )
-        st.session_state.robot_anim[name] = (frame + 1) % 10
+    st.markdown(
+        f"<div class='count-box'>{task['emoji']} <strong>{name}</strong>: "
+        f"{manual_label.capitalize()}: {manual} &nbsp;&nbsp; | &nbsp;&nbsp; "
+        f"{auto_label.capitalize()}: {auto} &nbsp;&nbsp; | &nbsp;&nbsp; "
+        f"<span class='total-count'>{total_label.capitalize()}: {total}</span>{robot_display}</div>",
+        unsafe_allow_html=True
+    )
 
-# Ending
+    st.markdown(f"**Now we are going to...**")
+    st.markdown(f"## {task['emoji']} {name}")
+
+    if name in st.session_state.transition_text:
+        st.success(st.session_state.transition_text[name])
+
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        if st.button("✅ Do it manually"):
+            st.session_state.manual_counts[name] += 1
+    with col2:
+        if st.button("🤖 Let's automate this"):
+            st.session_state.robots.append(name)
+            st.session_state.robot_anim[name] = 0
+            st.session_state.transition_text[name] = f"✨ {task['transition']}"
+            st.session_state.level += 1
+
+# Show all completed counters
+for task in activities:
+    name = task["name"]
+    if name != activities[st.session_state.level]["name"] if st.session_state.level < len(activities) else True:
+        if name in st.session_state.manual_counts or name in st.session_state.robot_counts:
+            manual = st.session_state.manual_counts.get(name, 0)
+            auto = st.session_state.robot_counts.get(name, 0)
+            total = manual + auto
+            manual_label, auto_label, total_label = task["labels"]
+
+            robot_display = ""
+            if name in st.session_state.robots:
+                frame = st.session_state.robot_anim.get(name, 0)
+                icons = [task["emoji"]] * 10
+                icons[frame % 10] = "✅"
+                robot_display = f"<br>{' '.join(icons)}"
+                st.session_state.robot_anim[name] = (frame + 1) % 10
+                st.session_state.robot_counts[name] += 1
+
+            st.markdown(
+                f"<div class='count-box'>{task['emoji']} <strong>{name}</strong>: "
+                f"{manual_label.capitalize()}: {manual} &nbsp;&nbsp; | &nbsp;&nbsp; "
+                f"{auto_label.capitalize()}: {auto} &nbsp;&nbsp; | &nbsp;&nbsp; "
+                f"<span class='total-count'>{total_label.capitalize()}: {total}</span>{robot_display}</div>",
+                unsafe_allow_html=True
+            )
+
+# Final message
 if st.session_state.level >= len(activities):
     st.markdown("## Everything you do, a robot can do better.")
     st.markdown("You no longer need to work, learn, talk, feel… or even love.")
