@@ -23,12 +23,27 @@ h1, h2, h3 {
     padding: 0.6em 1.2em;
     border-radius: 8px;
     font-size: 1em;
+    width: 100%;
     transition: 0.3s ease;
-    margin: 0.5em;
+    margin: 0.25em 0;
 }
 .stButton>button:hover {
     background-color: #80f0ff;
     color: #0d0d0d;
+}
+.manual-button button {
+    background-color: #3333aa;
+    border-color: #3333aa;
+}
+.manual-button button:hover {
+    background-color: #6666ff;
+}
+.automate-button button {
+    background-color: #aa3388;
+    border-color: #aa3388;
+}
+.automate-button button:hover {
+    background-color: #ff66cc;
 }
 .task-box {
     background-color: rgba(255, 255, 255, 0.05);
@@ -43,15 +58,15 @@ h1, h2, h3 {
 </style>
 """, unsafe_allow_html=True)
 
-st_autorefresh(interval=1000, key="refresh")
+st_autorefresh(interval=100, key="refresh")  # now faster: 0.1 sec
 
 # Activities
 activities = [
-    {"name": "Work", "emoji": "💼", "icon": "🧠"},
-    {"name": "Write a book", "emoji": "📖", "icon": "✍️"},
-    {"name": "Read a book", "emoji": "📚", "icon": "👓"},
-    {"name": "Talk to a friend", "emoji": "🗣️", "icon": "🫂"},
-    {"name": "Spend time with your kids", "emoji": "👨‍👧‍👦", "icon": "🧸"},
+    {"name": "Work", "emoji": "💼", "icon": "🧠", "transition": "No more meetings or emails — now I can write that book."},
+    {"name": "Write a book", "emoji": "📖", "icon": "✍️", "transition": "With writing done, I finally have time to read and reflect."},
+    {"name": "Read a book", "emoji": "📚", "icon": "👓", "transition": "Books read, brain fed — now I want to connect with someone."},
+    {"name": "Talk to a friend", "emoji": "🗣️", "icon": "🫂", "transition": "Now that I’ve connected, I just want to be present with my family."},
+    {"name": "Spend time with your kids", "emoji": "👨‍👧‍👦", "icon": "🧸", "transition": "Even this… replaced."}
 ]
 
 # Init session state
@@ -65,30 +80,37 @@ if "robot_counts" not in st.session_state:
     st.session_state.robot_counts = {}
 if "total_actions" not in st.session_state:
     st.session_state.total_actions = 0
+if "transition_text" not in st.session_state:
+    st.session_state.transition_text = ""
 
 # Title
 st.title("Better Than You")
 st.markdown("### Why do it yourself when a robot can do it for you?")
 
 # Big counter
-st.markdown(f"<h2 class='centered'>🤖 Total automated actions: {st.session_state.total_actions}</h2>", unsafe_allow_html=True)
+st.markdown(f"<h2 class='centered'>🧮 Total actions done: {st.session_state.total_actions}</h2>", unsafe_allow_html=True)
 
-# Current task
+# Task flow
 if st.session_state.level < len(activities):
     task = activities[st.session_state.level]
-    st.markdown(f"## {task['emoji']} {task['name']}")
-    st.markdown(f"<div class='centered'>What would you like to do?</div>", unsafe_allow_html=True)
 
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button(f"✅ Do it manually"):
-            st.session_state.total_actions += 1
-    with col2:
-        if st.button(f"🤖 Let's automate this"):
-            st.session_state.robots.append(task)
-            st.session_state.robot_anim[task['name']] = 0
-            st.session_state.robot_counts[task['name']] = 0
-            st.session_state.level += 1
+    st.markdown(f"<div class='centered' style='margin-bottom: 1em;'>Now we are going to…</div>", unsafe_allow_html=True)
+    st.markdown(f"## {task['emoji']} {task['name']}")
+
+    if st.session_state.transition_text:
+        st.success(st.session_state.transition_text)
+
+    # Centered buttons
+    st.markdown("<div class='centered' style='max-width: 400px; margin: auto;'>", unsafe_allow_html=True)
+    if st.button("✅ Do it manually", key="manual", help="Do this task yourself", type="primary"):
+        st.session_state.total_actions += 1
+    if st.button("🤖 Let's automate this", key="auto", help="Buy a robot to take over"):
+        st.session_state.robots.append(task)
+        st.session_state.robot_anim[task['name']] = 0
+        st.session_state.robot_counts[task['name']] = 0
+        st.session_state.transition_text = f"✨ {task['transition']}"
+        st.session_state.level += 1
+    st.markdown("</div>", unsafe_allow_html=True)
 
 # Robots working
 if len(st.session_state.robots) > 0:
