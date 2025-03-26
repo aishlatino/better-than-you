@@ -238,4 +238,4 @@ if st.session_state.level >= len(activities):
     """, unsafe_allow_html=True)
 
 st.markdown("---")
-st.markdown("📸 **If this made you think — share it.** Screenshot your screen. Tag [#BetterThanYou] on social media.")
+st.markdown("🤖 Code made by ChatGPT")
