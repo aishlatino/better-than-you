@@ -4,58 +4,80 @@ from streamlit_autorefresh import st_autorefresh
 
 st.set_page_config(page_title="Better Than You", layout="wide")
 
+# Combine Black Mirror-style visual design with v15 logic
 st.markdown("""
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <style>
 body {
-    background-color: #0d0d0d;
-    color: #e0e0ff;
+    background: linear-gradient(145deg, #0f1115, #1a1d22);
+    color: #e3e3ff;
     font-family: 'Inter', sans-serif;
 }
 h1, h2, h3 {
-    text-align: left;
-    color: #ff66ff;
+    font-family: 'Orbitron', sans-serif;
+    color: #9d4edd;
+    text-shadow: 0 0 6px #9d4edd55;
 }
 .stButton>button {
-    border-radius: 8px;
-    font-size: 1em;
-    transition: 0.3s ease;
+    border-radius: 10px;
+    padding: 0.6em 1.4em;
+    font-size: 1.05em;
     margin-bottom: 0.75em;
-    width: 300px;
-    display: block;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    width: 320px;
 }
 .stButton.manual button {
-    background-color: #3344aa;
-    color: white;
-    border: 1px solid #3344aa;
+    background: linear-gradient(145deg, #393c50, #4a4e68);
+    color: #cdd6f4;
 }
 .stButton.manual button:hover {
-    background-color: #5566ff;
-    color: black;
+    background: #6370a0;
+    color: white;
 }
 .stButton.automate button {
-    background-color: #aa3388;
-    color: white;
-    border: 1px solid #aa3388;
+    background: linear-gradient(145deg, #5a2a82, #752a8d);
+    color: #f4eaff;
 }
 .stButton.automate button:hover {
-    background-color: #ff66cc;
+    background: #a855f7;
     color: black;
 }
 .count-box {
-    background-color: rgba(255,255,255,0.05);
-    border: 1px solid #555;
-    padding: 0.75em;
-    margin: 0.5em 0;
-    border-radius: 8px;
+    background-color: rgba(255,255,255,0.03);
+    border: 1px solid #444;
+    padding: 1em;
+    margin: 1em 0;
+    border-radius: 10px;
     font-size: 0.95em;
+    box-shadow: 0 0 10px #11111188;
 }
 .total-count {
-    color: #ff66ff;
+    color: #a855f7;
     font-weight: bold;
+}
+.cta-button {
+    display: inline-block;
+    background-color: #4400ff;
+    color: white;
+    padding: 1.2em 2em;
+    font-size: 1.4em;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: bold;
+    box-shadow: 0 0 20px #4400ff;
+    transition: all 0.3s ease;
+}
+.cta-button:hover {
+    background-color: #6c00ff;
+    box-shadow: 0 0 30px #6c00ff;
+    color: #fff;
 }
 </style>
 """, unsafe_allow_html=True)
 
+from streamlit_autorefresh import st_autorefresh
 st_autorefresh(interval=100, key="refresh")
 
 activities = [
@@ -91,31 +113,34 @@ activities = [
     }
 ]
 
-# Red feedback messages per task
 red_feedbacks = {
     "Go to work": [
-        "Nice hustle! Another day at the office.",
-        "Still clocking in manually, huh?",
-        "Work-life balance? Robots don’t sleep.",
-        "Time is money. Robots work for free."
+        "🏢 Nice hustle! Another day at the office.",
+        "💼 Still clocking in manually, huh?",
+        "⏱️ Work-life balance? Robots don’t sleep.",
+        "🧮 Time is money. Robots work for free.",
+        "🤖 It's probably time to automate this."
     ],
     "Write a book": [
-        "Beautiful! You wrote your first page.",
-        "Another chapter done!",
-        "Still writing by hand? You sure?",
-        "Typing again? Robots write faster."
+        "✍️ Beautiful! You wrote your first page.",
+        "📖 Another chapter done!",
+        "⌨️ Still writing by hand? You sure?",
+        "🧠 Typing again? Robots write faster.",
+        "🤖 Maybe it's time to automate this."
     ],
     "Read a book": [
-        "Great! A new book opened.",
-        "Deep thoughts, again?",
-        "Let an AI summarize it?",
-        "You read that already, remember?"
+        "📚 Great! A new book opened.",
+        "📖 Deep thoughts, again?",
+        "📄 Let an AI summarize it?",
+        "🌀 You read that already, remember?",
+        "🤖 Maybe it's time to automate this."
     ],
     "Talk with a friend": [
-        "Nice talk! That felt good.",
-        "Still doing it in person?",
-        "Same story again, huh?",
-        "A chatbot could listen too."
+        "🗣️ Nice talk! That felt good.",
+        "👂 Still doing it in person?",
+        "😅 Same story again, huh?",
+        "💬 A chatbot could listen too.",
+        "🤖 Maybe it's time to automate this."
     ],
     "Spend time with your kids": [
         "🧸 A precious moment with your child — nothing else matters.",
@@ -123,10 +148,9 @@ red_feedbacks = {
         "🧠 You're here now… but what if you could give them more by doing less?",
         "👀 You keep showing up, but could someone else do it better?",
         "🤖 Even parenting can be optimized now... maybe it’s time to automate?"
-    ],
+    ]
 }
 
-# Init state
 for k in ["level", "robots", "robot_anim", "robot_counts", "manual_counts", "transition_text", "manual_clicked"]:
     if k not in st.session_state:
         st.session_state[k] = {} if "counts" in k or "anim" in k or "text" in k or "clicked" in k else 0 if k == "level" else []
@@ -138,16 +162,15 @@ if "pending_manual_feedback" not in st.session_state:
 if "pending_manual_color" not in st.session_state:
     st.session_state.pending_manual_color = "#ffcccc"
 
-# Title
 st.title("Better Than You")
 st.markdown("### Why do it yourself when a robot can do it for you?")
 
-# Counters - appear as soon as category starts
+# Display counters (hide first task until interaction)
 for i, task in enumerate(activities):
     name = task["name"]
     st.session_state.manual_counts.setdefault(name, 0)
     st.session_state.robot_counts.setdefault(name, 0)
-    if i < st.session_state.level or (i == st.session_state.level and (i > 0 or st.session_state.manual_counts.get(task['name'], 0) > 0)):
+    if i < st.session_state.level or (i == st.session_state.level and (i > 0 or st.session_state.manual_counts.get(name, 0) > 0)):
         manual = st.session_state.manual_counts[name]
         auto = st.session_state.robot_counts[name]
         total = manual + auto
@@ -161,7 +184,6 @@ for i, task in enumerate(activities):
             robot_display = f"<br>{' '.join(icons)}"
             st.session_state.robot_anim[name] = (frame + 1) % 10
             st.session_state.robot_counts[name] += 1
-
         st.markdown(
             f"<div class='count-box'>{task['emoji']} <strong>{task['cta']}</strong>: "
             f"{labels[0]}: {manual} &nbsp;&nbsp; | &nbsp;&nbsp; "
@@ -170,11 +192,10 @@ for i, task in enumerate(activities):
             unsafe_allow_html=True
         )
 
-# Task
+# Show current task
 if st.session_state.level < len(activities):
     task = activities[st.session_state.level]
     name = task["name"]
-
     st.markdown(f"## {task['emoji']} {task['cta']}")
 
     if st.session_state.pending_manual_feedback:
@@ -195,10 +216,7 @@ if st.session_state.level < len(activities):
         st.session_state.manual_clicked[name] = True
         count = st.session_state.manual_counts[name]
         msg_list = red_feedbacks.get(name, ["Well done!"])
-        if count <= len(msg_list):
-            msg = msg_list[count - 1]
-        else:
-            msg = msg_list[-1] + " 🤖 Maybe it's time to automate?"
+        msg = msg_list[min(count - 1, len(msg_list) - 1)] if count <= len(msg_list) else msg_list[-1]
         shade_val = max(0, 204 - int(count * 2))
         hex_val = f"{shade_val:02x}"
         color = f"#ff{hex_val}{hex_val}"
@@ -216,24 +234,14 @@ if st.session_state.level < len(activities):
         st.session_state.manual_clicked[name] = False
         st.session_state.level += 1
 
-# End
+# Ending
 if st.session_state.level >= len(activities):
     st.markdown("## Everything you do, a robot can do better.")
     st.markdown("You no longer need to work, write, read, connect… or even spend time with your loved ones.")
     st.markdown("#### So… what's the point of your existence?")
     st.markdown("""
     <div style='margin-top: 30px;'>
-        <a href='https://aish.com/humans-vs-ai-will-we-remain-relevant/' target='_blank' style='
-            display: inline-block;
-            background-color: #4400ff;
-            color: white;
-            padding: 1.2em 2em;
-            font-size: 1.4em;
-            border-radius: 12px;
-            text-decoration: none;
-            font-weight: bold;
-            box-shadow: 0 0 20px #4400ff;
-        '>🌌 Discover what makes you human</a>
+        <a href='https://aish.com/humans-vs-ai-will-we-remain-relevant/' target='_blank' class='cta-button'>🌌 Discover what makes you human</a>
     </div>
     """, unsafe_allow_html=True)
 
