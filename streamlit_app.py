@@ -118,11 +118,11 @@ red_feedbacks = {
         "A chatbot could listen too."
     ],
     "Spend time with your kids": [
-        "🧸 A precious moment with your child — nothing else matters.",
-        "🤗 Another memory made… but how many more can you afford to make?",
-        "🧠 You're here now… but what if you could give them more by doing less?",
-        "👀 You keep showing up, but could someone else do it better?",
-        "🤖 Even parenting can be optimized now... maybe it’s time to automate?"
+        "A precious moment with your child — nothing else matters.",
+        "Another memory made… but how many more can you afford to make?",
+        "You're here now… but what if you could give them more by doing less?",
+        "You keep showing up, but could someone else do it better?",
+        "Even parenting can be optimized now..."
     ],
 }
 
