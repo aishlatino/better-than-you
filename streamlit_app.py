@@ -29,6 +29,7 @@ h1, h2, h3 {
     width: 320px;
 }
 .stButton.manual button {
+    border: 2px solid #6370a0;
     background: linear-gradient(145deg, #393c50, #4a4e68);
     color: #cdd6f4;
 }
@@ -37,6 +38,7 @@ h1, h2, h3 {
     color: white;
 }
 .stButton.automate button {
+    border: 2px solid #a855f7;
     background: linear-gradient(145deg, #5a2a82, #752a8d);
     color: #f4eaff;
 }
@@ -58,6 +60,7 @@ h1, h2, h3 {
     font-weight: bold;
 }
 .cta-button {
+    color: #ffffff !important;
     display: inline-block;
     background-color: #4400ff;
     color: white;
